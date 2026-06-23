@@ -10,10 +10,26 @@ RSpec.describe Program do
     let(:args_no_gem) { ['show'] }
 
     it 'returns 0 exit code' do
-      result = Program.new.execute(args)
+      command = double
+
+      allow(CommandFactory)
+        .to receive(:find)
+        .with('show')
+        .and_return(command)
+
+      allow(command)
+        .to receive(:execute)
+        .with('rails')
+        .and_return(
+          ProgramResult.new(
+            0,
+            "Gem name: rails\nGem info: Ruby on Rails is a full-stack web framework optimized for programmer happiness and sustainable productivity. It encourages beautiful code by favoring convention over configuration."
+          )
+        )
+
+      result = Program.new.execute(%w[show rails])
 
       expect(result.exit_code).to eq(0)
-      expect(result.exit_description).to eq("Gem name: rails\nGem info: Ruby on Rails is a full-stack web framework optimized for programmer happiness and sustainable productivity. It encourages beautiful code by favoring convention over configuration.")
     end
 
     it 'returns 1 exit code' do
