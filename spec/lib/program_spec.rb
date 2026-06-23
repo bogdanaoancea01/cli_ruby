@@ -11,7 +11,7 @@ RSpec.describe Program do
             result = Program.new.execute(args)
 
             expect(result.exit_code).to eq(0)
-            expect(result.exit_description).to eq("Gem name: rails Gem info: Ruby on Rails is a full-stack web framework optimized for programmer happiness and sustainable productivity. It encourages beautiful code by favoring convention over configuration.")
+            expect(result.exit_description).to eq("Gem name: rails\nGem info: Ruby on Rails is a full-stack web framework optimized for programmer happiness and sustainable productivity. It encourages beautiful code by favoring convention over configuration.")
         end
 
         it 'returns 1 exit code' do
