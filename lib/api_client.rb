@@ -4,10 +4,8 @@ class APIClient
     def self.show(gem_name)
         response = Faraday.get("#{BASE_URL}/gems/#{gem_name}.json")
         if response.status == 404
-            puts "Gem not found"
-        else
-            JSON.parse(response.body)
+            return "Gem not found"
         end
-        
+        JSON.parse(response.body)
     end
 end

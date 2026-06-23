@@ -5,8 +5,8 @@ RSpec.describe APIClient do
         let(:gem_name) { "rails" }
         let(:gem_name_not_existent) { "bogdana" }
 
-        it 'returns json object' do
-            expect { APIClient.show(gem_name_not_existent) }.to output(/Gem not found/).to_stdout
+        it 'returns gem not found when gem does not exist' do
+            expect(APIClient.show(gem_name_not_existent)).to eq("Gem not found")
         end
     end
 end
