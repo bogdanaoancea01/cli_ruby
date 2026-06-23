@@ -1,8 +1,10 @@
-class GemInfo
-    attr_reader :name, :info
+# frozen_string_literal: true
 
-    def initialize(name, info)
-        @name = name
-        @info = info
-    end
+class GemInfo
+  attr_reader :name, :info
+
+  def initialize(name, info)
+    @name = name
+    @info = info
+  end
 end

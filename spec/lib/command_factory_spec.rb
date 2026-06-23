@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require './lib/commands/command_factory'
 require './lib/commands/show_command'
 
