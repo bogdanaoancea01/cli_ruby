@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ProgramResult
   attr_reader :exit_code, :exit_description
 
