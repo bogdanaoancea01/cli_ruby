@@ -1,4 +1,6 @@
-require "bundler/setup"
+# frozen_string_literal: true
+
+require 'bundler/setup'
 require './lib/program'
 
 result = Program.new.execute(ARGV)
