@@ -82,4 +82,45 @@ RSpec.describe APIClient do
       end
     end
   end
+
+  describe '#search' do
+    let(:search_api_response) do
+      double(
+        'Faraday::Response',
+        status: 200,
+        body: [
+          { name: 'cucumber', info: 'BDD tool' },
+          { name: 'cucumber-core', info: 'Core library' },
+          { name: 'cucumber-rails', info: 'Rails integration' }
+        ].to_json
+      )
+    end
+
+    context 'when there are no gems with the given keyword' do
+      it 'returns no gems found message' do
+        fake_response = double('Faraday::Response', status: 404, body: [])
+        allow(Faraday).to receive(:get).and_return(fake_response)
+
+        result = APIClient.search('bogdana')
+
+        expect(result).to eq('No gems found')
+      end
+    end
+
+    context 'when gems exist' do
+      it 'returns a list of gems that contain the given keyword' do
+        allow(Faraday).to receive(:get).and_return(search_api_response)
+
+        result = APIClient.search('cucumber')
+
+        expect(result).to eq(
+          [
+            { 'name' => 'cucumber', 'info' => 'BDD tool' },
+            { 'name' => 'cucumber-core', 'info' => 'Core library' },
+            { 'name' => 'cucumber-rails', 'info' => 'Rails integration' }
+          ]
+        )
+      end
+    end
+  end
 end

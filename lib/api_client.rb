@@ -9,4 +9,11 @@ class APIClient
 
     JSON.parse(response.body)
   end
+
+  def self.search(keyword)
+    response = Faraday.get("#{BASE_URL}/search.json?query=#{keyword}")
+    return 'No gems found' if response.status == 404
+
+    JSON.parse(response.body)
+  end
 end
