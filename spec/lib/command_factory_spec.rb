@@ -2,13 +2,20 @@
 
 require './lib/commands/command_factory'
 require './lib/commands/show_command'
+require './lib/commands/search_command'
 
 RSpec.describe CommandFactory do
-  describe '.find' do
+  describe '#find' do
     it 'returns a ShowCommand for show' do
       command = CommandFactory.find('show')
 
       expect(command).to be_a(ShowCommand)
+    end
+
+    it 'returns a SearchCommand for search' do
+      command = CommandFactory.find('search')
+
+      expect(command).to be_a(SearchCommand)
     end
 
     it 'returns nil for an unknown command' do
