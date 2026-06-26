@@ -104,4 +104,13 @@ RSpec.describe APIClient do
       end
     end
   end
+
+  describe '#connection' do
+    context 'test connection headers' do
+      it 'sets headers to given api key' do
+        expect(APIClient::CONNECTION.headers['authorization'])
+          .to eq(ENV['RUBY_GEMS_API_KEY'])
+      end
+    end
+  end
 end
