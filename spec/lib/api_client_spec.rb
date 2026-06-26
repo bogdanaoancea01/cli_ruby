@@ -5,66 +5,19 @@ require './lib/api_client'
 RSpec.describe APIClient do
   describe '#show' do
     let(:gem_json) do
-      '{
-            "name": "rails",
-            "downloads": 756415561,
-            "version": "8.1.3",
-            "version_created_at": "2026-03-24T20:27:42.098Z",
-            "version_downloads": 7351214,
-            "platform": "ruby",
-            "authors": "David Heinemeier Hansson",
-            "info": "Ruby on Rails is a full-stack web framework optimized for programmer happiness and sustainable productivity. It encourages beautiful code by favoring convention over configuration.",
-            "licenses": [
-                "MIT"
-            ],
-            "metadata": {
-                "changelog_uri": "https://github.com/rails/rails/releases/tag/v8.1.3",
-                "bug_tracker_uri": "https://github.com/rails/rails/issues",
-                "source_code_uri": "https://github.com/rails/rails/tree/v8.1.3",
-                "mailing_list_uri": "https://discuss.rubyonrails.org/c/rubyonrails-talk",
-                "documentation_uri": "https://api.rubyonrails.org/v8.1.3/",
-                "rubygems_mfa_required": "true"
-            },
-            "yanked": false,
-            "sha": "6d017ba5348c98fc909753a8169b21d44de14d2a0b92d140d1a966834c3c9cd3",
-            "spec_sha": "3a316a58ddb9d1ca3ffa17f10af837ba7e0f6e7cc6e413fc4810e89759f149af",
-            "project_uri": "https://rubygems.org/gems/rails",
-            "gem_uri": "https://rubygems.org/gems/rails-8.1.3.gem",
-            "homepage_uri": "https://rubyonrails.org",
-            "wiki_uri": null,
-            "documentation_uri": "https://api.rubyonrails.org/v8.1.3/",
-            "mailing_list_uri": "https://discuss.rubyonrails.org/c/rubyonrails-talk",
-            "source_code_uri": "https://github.com/rails/rails/tree/v8.1.3",
-            "bug_tracker_uri": "https://github.com/rails/rails/issues",
-            "changelog_uri": "https://github.com/rails/rails/releases/tag/v8.1.3",
-            "funding_uri": null,
-            "dependencies": {
-                    "development": [],
-                    "runtime": [
-                    { "name": "actioncable", "requirements": "= 8.1.3" },
-                    { "name": "actionmailbox", "requirements": "= 8.1.3" },
-                    { "name": "actionmailer", "requirements": "= 8.1.3" },
-                    { "name": "actionpack", "requirements": "= 8.1.3" },
-                    { "name": "actiontext", "requirements": "= 8.1.3" },
-                    { "name": "actionview", "requirements": "= 8.1.3" },
-                    { "name": "activejob", "requirements": "= 8.1.3" },
-                    { "name": "activemodel", "requirements": "= 8.1.3" },
-                    { "name": "activerecord", "requirements": "= 8.1.3" },
-                    { "name": "activestorage", "requirements": "= 8.1.3" },
-                    { "name": "activesupport", "requirements": "= 8.1.3" },
-                    { "name": "bundler", "requirements": "\u003E= 1.15.0" },
-                    { "name": "railties", "requirements": "= 8.1.3" }
-                    ]
-            }
-            }'
+      File.read('spec/fixtures/gem_json.json')
     end
+    let(:non_existent_gem) { 'bogdana' }
+    let(:gem) { 'rails' }
 
     context 'when gem exists' do
       it 'returns gem information about the provided gem' do
         fake_response = double('Faraday::Response', status: 200, body: gem_json)
-        allow(Faraday).to receive(:get).and_return(fake_response)
+        allow(APIClient::CONNECTION).to receive(:get)
+          .with("#{APIClient::BASE_URL}/gems/#{gem}.json")
+          .and_return(fake_response)
 
-        result = APIClient.show('rails')
+        result = APIClient.show(gem)
 
         expect(result['name']).to eq('rails')
         expect(result['info']).to eq('Ruby on Rails is a full-stack web framework optimized for programmer happiness and sustainable productivity. It encourages beautiful code by favoring convention over configuration.')
@@ -73,12 +26,23 @@ RSpec.describe APIClient do
 
     context 'when gem does not exist' do
       it 'returns a not found message' do
-        fake_response = double('Faraday::Response', status: 404, body: nil)
-        allow(Faraday).to receive(:get).and_return(fake_response)
-
-        result = APIClient.show('bogdana')
+        allow(APIClient::CONNECTION).to receive(:get)
+          .with("#{APIClient::BASE_URL}/gems/#{non_existent_gem}.json")
+          .and_raise(Faraday::ResourceNotFound)
+        result = APIClient.show(non_existent_gem)
 
         expect(result).to eq('Gem not found')
+      end
+    end
+
+    context 'when server error occurs occur' do
+      it 'returns a \'See status codes for more details\' message' do
+        allow(APIClient::CONNECTION).to receive(:get)
+          .with("#{APIClient::BASE_URL}/gems/#{non_existent_gem}.json")
+          .and_raise(Faraday::ServerError)
+        result = APIClient.show(non_existent_gem)
+
+        expect(result).to eq('See status codes for more details')
       end
     end
   end
@@ -95,13 +59,16 @@ RSpec.describe APIClient do
         ].to_json
       )
     end
+    let(:bad_keyword) { 'bogdana' }
+    let(:good_keyword) { 'cucumber' }
 
     context 'when there are no gems with the given keyword' do
       it 'returns no gems found message' do
-        fake_response = double('Faraday::Response', status: 404, body: [])
-        allow(Faraday).to receive(:get).and_return(fake_response)
+        allow(APIClient::CONNECTION).to receive(:get)
+          .with("#{APIClient::BASE_URL}/search.json?query=#{bad_keyword}")
+          .and_raise(Faraday::ResourceNotFound)
 
-        result = APIClient.search('bogdana')
+        result = APIClient.search(bad_keyword)
 
         expect(result).to eq('No gems found')
       end
@@ -109,9 +76,11 @@ RSpec.describe APIClient do
 
     context 'when gems exist' do
       it 'returns a list of gems that contain the given keyword' do
-        allow(Faraday).to receive(:get).and_return(search_api_response)
+        allow(APIClient::CONNECTION).to receive(:get)
+          .with("#{APIClient::BASE_URL}/search.json?query=#{good_keyword}")
+          .and_return(search_api_response)
 
-        result = APIClient.search('cucumber')
+        result = APIClient.search(good_keyword)
 
         expect(result).to eq(
           [
@@ -120,6 +89,18 @@ RSpec.describe APIClient do
             { 'name' => 'cucumber-rails', 'info' => 'Rails integration' }
           ]
         )
+      end
+    end
+
+    context 'when server error occurs occur' do
+      it 'returns a \'See status codes for more details\' message' do
+        allow(APIClient::CONNECTION).to receive(:get)
+          .with("#{APIClient::BASE_URL}/search.json?query=#{good_keyword}")
+          .and_raise(Faraday::TimeoutError)
+
+        result = APIClient.search(good_keyword)
+
+        expect(result).to eq('See status codes for more details')
       end
     end
   end
