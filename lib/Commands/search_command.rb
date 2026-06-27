@@ -26,7 +26,11 @@ class SearchCommand < Command
 
     if option
       option_cmd = OptionFactory.find(option)
-      gems = option_cmd.execute(gems, option_value) if option
+      if option_value
+        gems = option_cmd.execute(gems, option_value)
+      else
+        gems = option_cmd.execute(gems, option_value)
+      end
     end
 
     gems = gems.map { |gem| GemInfo.new(gem['name'], gem['info']) }
