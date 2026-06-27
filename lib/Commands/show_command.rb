@@ -10,7 +10,9 @@ class ShowCommand < Command
     @client = client
   end
 
-  def execute(gem_name)
+  def execute(args)
+    gem_name = args.first if args
+
     return ProgramResult.new(3, 'No gem name given') if gem_name.nil?
 
     api_json_response = @client.show(gem_name)

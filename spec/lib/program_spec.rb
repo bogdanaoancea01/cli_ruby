@@ -19,7 +19,7 @@ RSpec.describe Program do
 
       allow(command)
         .to receive(:execute)
-        .with('rails')
+        .with(['rails'])
         .and_return(
           ProgramResult.new(
             0,
