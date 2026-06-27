@@ -2,11 +2,13 @@
 
 require './lib/options/licence_option'
 require './lib/options/sort_option'
+require './lib/options/sort_and_filter'
 
 class OptionFactory
   OPTIONS = {
-    '--most-downloads-first' => SortOption.new,
-    '--licence' => LicenceOption.new
+    'sort' => SortOption.new,
+    'licence' => LicenceOption.new,
+    'sort-and-filter' => SortAndFilter.new
   }.freeze
 
   def self.find(name)
