@@ -16,6 +16,6 @@ class Program
 
     return ProgramResult.new(2, 'Command unknown') if command.nil?
 
-    command.execute(args[1])
+    command.execute(args[1..])
   end
 end
