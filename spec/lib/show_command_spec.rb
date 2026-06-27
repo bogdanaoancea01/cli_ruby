@@ -12,8 +12,8 @@ RSpec.describe ShowCommand do
     let(:gem_json) do
       File.read('spec/fixtures/gem_json.json')
     end
-    let(:non_existent_gem) { 'bogdana' }
-    let(:gem) { 'rails' }
+    let(:args_with_bad_gem) { ['bogdana'] }
+    let(:args_with_good_gem) { ['rails'] }
 
     it 'returns exit code 3 when no gem name is given' do
       result = command.execute(nil)
@@ -25,19 +25,22 @@ RSpec.describe ShowCommand do
     it 'returns gem not found for a gem that does not exist' do
       allow(client)
         .to receive(:show)
-        .with(non_existent_gem)
+        .with(args_with_bad_gem.first)
         .and_return('Gem not found')
 
-      result = command.execute(non_existent_gem)
+      result = command.execute(args_with_bad_gem)
 
       expect(result.exit_code).to eq(4)
       expect(result.exit_description).to eq('Gem not found')
     end
 
     it 'returns information for rails gem' do
-      allow(client).to receive(:show).with(gem).and_return(JSON.parse(gem_json))
+      allow(client)
+        .to receive(:show)
+        .with(args_with_good_gem.first)
+        .and_return(JSON.parse(gem_json))
 
-      result = command.execute(gem)
+      result = command.execute(args_with_good_gem)
 
       expect(result.exit_code).to eq(0)
       expect(result.exit_description).to eq(exit_description)
