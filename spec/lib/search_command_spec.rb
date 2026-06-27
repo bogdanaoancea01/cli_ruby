@@ -5,7 +5,7 @@ require './lib/commands/search_command'
 RSpec.describe SearchCommand do
   describe '#execute' do
     let(:client) { double('APIClient') }
-    let(:command) { SearchCommand.new(client) }
+    let(:command) { described_class.new(client) }
 
     let(:args_with_good_keyword) { ['cucumber'] }
     let(:args_with_bad_keyword) { ['bogdana'] }

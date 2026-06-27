@@ -5,7 +5,7 @@ require './lib/commands/show_command'
 RSpec.describe ShowCommand do
   describe '#execute' do
     let(:client) { double('APIClient') }
-    let(:command) { ShowCommand.new(client) }
+    let(:command) { described_class.new(client) }
     let(:exit_description) do
       "Gem name: rails\nGem info: Ruby on Rails is a full-stack web framework optimized for programmer happiness and sustainable productivity. It encourages beautiful code by favoring convention over configuration."
     end

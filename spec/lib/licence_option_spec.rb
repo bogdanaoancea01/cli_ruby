@@ -4,7 +4,7 @@ require './lib/options/licence_option'
 
 RSpec.describe LicenceOption do
   describe '#execute' do
-    let(:option) { LicenceOption.new }
+    let(:option) { described_class.new }
 
     let(:gems) do
       [
