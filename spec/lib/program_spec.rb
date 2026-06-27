@@ -27,27 +27,27 @@ RSpec.describe Program do
           )
         )
 
-      result = Program.new.execute(%w[show rails])
+      result = described_class.new.execute(%w[show rails])
 
       expect(result.exit_code).to eq(0)
     end
 
     it 'returns 1 exit code' do
-      result = Program.new.execute(args_no_command)
+      result = described_class.new.execute(args_no_command)
 
       expect(result.exit_code).to eq(1)
       expect(result.exit_description).to eq('No command given')
     end
 
     it 'returns 2 exit code' do
-      result = Program.new.execute(args_bad_command)
+      result = described_class.new.execute(args_bad_command)
 
       expect(result.exit_code).to eq(2)
       expect(result.exit_description).to eq('Command unknown')
     end
 
     it 'returns 3 exit code' do
-      result = Program.new.execute(args_no_gem)
+      result = described_class.new.execute(args_no_gem)
 
       expect(result.exit_code).to eq(3)
       expect(result.exit_description).to eq('No gem name given')

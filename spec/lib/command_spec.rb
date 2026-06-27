@@ -6,7 +6,7 @@ RSpec.describe Command do
   describe '#execute' do
     it 'raises NotImplementedError' do
       expect do
-        Command.new.execute([])
+        described_class.new.execute([])
       end.to raise_error(NotImplementedError)
     end
   end
