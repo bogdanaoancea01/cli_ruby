@@ -5,26 +5,25 @@ require './lib/options/parse_options'
 
 RSpec.describe ParseOptions do
   describe '#execute' do
-
-    let(:args) { ['--licence', 'LICENCE', '--most-downloads-first'] }
-
     context 'when no arguments are given' do
       let(:args) { [] }
+      let(:result) { [] }
 
-      it 'returns the default options' do
+      it 'returns an empty array' do
         options = described_class.execute(args)
 
-        expect(options.licence).to be_nil
-        expect(options.sort).to be(false)
+        expect(options).to eq(result)
       end
     end
 
-    context 'when no arguments are given' do
-      it 'returns the parsed options' do
+    context 'when both options are given' do
+      let(:args) { ['--licence', 'LICENCE', '--most-downloads-first'] }
+
+      it 'returns an array containing the options objects' do
         options = described_class.execute(args)
 
-        expect(options.licence).to eq('LICENCE')
-        expect(options.sort).to be(true)
+        expect(options[0]).to be_a(LicenceOption)
+        expect(options[1]).to be_a(SortOption)
       end
     end
   end

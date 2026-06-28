@@ -1,21 +1,22 @@
 require 'optparse'
-require './lib/options/option_info'
+require './lib/options/licence_option'
+require './lib/options/sort_option'
 
 class ParseOptions
     def self.execute(args)
-        licence_name = nil
-        sort_by_downloads = false
+        options = []
 
         parser = OptionParser.new
         parser.on('--licence LICENCE_NAME') do |value|
-            licence_name = value
+            options.append(LicenceOption.new(value))
         end
         parser.on('--most-downloads-first') do |value|
-            sort_by_downloads = true
+            options.append(SortOption.new)
         end
 
         parser.parse!(args)
-        OptionInfo.new(licence_name, sort_by_downloads)
+
+        options
 
     end
 end
