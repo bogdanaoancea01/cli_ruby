@@ -22,10 +22,10 @@ class SearchCommand < Command
     return ProgramResult.new(4, 'No gems found') if api_response.empty?
 
     gems = api_response
-    binding.pry
+
     options = ParseOptions.execute(args[1..])
 
-    options.each {|opt| opt.execute(gems)}
+    options.each { |opt| opt.execute(gems) }
 
     gems = gems.map { |gem| GemInfo.new(gem['name'], gem['info']) }
 

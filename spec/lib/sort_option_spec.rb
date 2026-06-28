@@ -11,22 +11,22 @@ RSpec.describe SortOption do
         { 'name' => 'cucumber-core', 'info' => 'Core library', 'downloads' => 5 },
         { 'name' => 'cucumber-rails', 'info' => 'Rails integration', 'downloads' => 500 },
         { 'name' => 'cucumber-cucumber-expressions', 'info' => 'Cucumber Expressions', 'downloads' => 0 },
-        { 'name' => 'cucumber-cucumber-expressions-2', 'info' => 'Cucumber Expressions-2', 'downloads' => 20000 }
+        { 'name' => 'cucumber-cucumber-expressions-2', 'info' => 'Cucumber Expressions-2', 'downloads' => 20_000 }
       ]
     end
 
     it 'orders gems based on the number of downloads - descending' do
-        result = option.execute(gems)
+      result = option.execute(gems)
 
-        expect(result).to eq(
-          [
-            { 'name' => 'cucumber-cucumber-expressions-2', 'info' => 'Cucumber Expressions-2', 'downloads' => 20000 },
-            { 'name' => 'cucumber-rails', 'info' => 'Rails integration', 'downloads' => 500 },
-            { 'name' => 'cucumber-core', 'info' => 'Core library', 'downloads' => 5 },
-            { 'name' => 'cucumber-cucumber-expressions', 'info' => 'Cucumber Expressions', 'downloads' => 0 },
-            { 'name' => 'cucumber', 'info' => 'BDD tool', 'downloads' => nil }
-          ]
-        )
+      expect(result).to eq(
+        [
+          { 'name' => 'cucumber-cucumber-expressions-2', 'info' => 'Cucumber Expressions-2', 'downloads' => 20_000 },
+          { 'name' => 'cucumber-rails', 'info' => 'Rails integration', 'downloads' => 500 },
+          { 'name' => 'cucumber-core', 'info' => 'Core library', 'downloads' => 5 },
+          { 'name' => 'cucumber-cucumber-expressions', 'info' => 'Cucumber Expressions', 'downloads' => 0 },
+          { 'name' => 'cucumber', 'info' => 'BDD tool', 'downloads' => nil }
+        ]
+      )
     end
-end
+  end
 end
