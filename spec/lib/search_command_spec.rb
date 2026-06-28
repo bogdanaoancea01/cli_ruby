@@ -35,19 +35,7 @@ RSpec.describe SearchCommand do
       ]
     end
 
-    let(:args_with_sort) { ['cucumber', '--most-downloads-first'] }
-    let(:api_response_sort) do
-      [
-        { 'name' => 'cucumber', 'info' => 'BDD tool', 'downloads' => nil },
-        { 'name' => 'cucumber-core', 'info' => 'Core library', 'downloads' => 5 },
-        { 'name' => 'cucumber-rails', 'info' => 'Rails integration', 'downloads' => 500 },
-        { 'name' => 'cucumber-cucumber-expressions', 'info' => 'Cucumber Expressions', 'downloads' => 0 },
-        { 'name' => 'cucumber-cucumber-expressions-2', 'info' => 'Cucumber Expressions-2', 'downloads' => 20000 }
-      ]
-    end
-    let(:gems_after_sort) do
-      "cucumber-cucumber-expressions-2\ncucumber-rails\ncucumber-core\ncucumber-cucumber-expressions\ncucumber"
-    end
+    
 
     it 'returns exit code 3 when no keyword is given' do
       result = command.execute(nil)
@@ -80,7 +68,21 @@ RSpec.describe SearchCommand do
       expect(result.exit_description).to eq(gems_list)
     end
 
-    context 'search command with order options' do
+    context 'search command with sort options' do
+      let(:args_with_sort) { ['cucumber', '--most-downloads-first'] }
+    let(:api_response_sort) do
+      [
+        { 'name' => 'cucumber', 'info' => 'BDD tool', 'downloads' => nil },
+        { 'name' => 'cucumber-core', 'info' => 'Core library', 'downloads' => 5 },
+        { 'name' => 'cucumber-rails', 'info' => 'Rails integration', 'downloads' => 500 },
+        { 'name' => 'cucumber-cucumber-expressions', 'info' => 'Cucumber Expressions', 'downloads' => 0 },
+        { 'name' => 'cucumber-cucumber-expressions-2', 'info' => 'Cucumber Expressions-2', 'downloads' => 20000 }
+      ]
+    end
+    let(:gems_after_sort) do
+      "cucumber-cucumber-expressions-2\ncucumber-rails\ncucumber-core\ncucumber-cucumber-expressions\ncucumber"
+    end
+    
       it 'returns a sorted array of gems based on the number of downloads - descending' do
         allow(client)
           .to receive(:search)
@@ -105,6 +107,34 @@ RSpec.describe SearchCommand do
 
         expect(result.exit_code).to eq(0)
         expect(result.exit_description).to eq(gems_list_with_licence_mit)
+      end
+    end
+
+    context 'search command with sort and licence options' do
+      let(:args_with_sort_and_licence) { ['cucumber', '--most-downloads-first'] }
+      let(:api_response_sort_and_licence) do
+        [
+          { 'name' => 'cucumber', 'info' => 'BDD tool', 'licenses' => ['Apache-2.0'], 'downloads' => nil },
+          { 'name' => 'cucumber-core', 'info' => 'Core library', 'licenses' => ['MIT'], 'downloads' => 5 },
+          { 'name' => 'cucumber-rails', 'info' => 'Rails integration', 'licenses' => ['MIT'], 'downloads' => 500 },
+          { 'name' => 'cucumber-cucumber-expressions', 'info' => 'Cucumber Expressions', 'licenses' => ['GPL-3.0'], 'downloads' => 0 },
+          { 'name' => 'cucumber-cucumber-expressions-2', 'info' => 'Cucumber Expressions-2', 'licenses' => ['MIT'], 'downloads' => 20000 }
+        ]
+      end
+      let(:gems_after_sort_and_licence) do
+      "cucumber-cucumber-expressions-2\ncucumber-rails\ncucumber-core"
+    end
+
+      it 'returns a sorted array of gems containing specified licence based on the number of downloads - descending' do
+        allow(client)
+          .to receive(:search)
+          .with(args_with_sort_and_licence.first)
+          .and_return(api_response_sort_and_licence)
+
+        result = command.execute(args_with_sort_and_licence)
+
+        expect(result.exit_code).to eq(0)
+        expect(result.exit_description).to eq(gems_after_sort)
       end
     end
   end

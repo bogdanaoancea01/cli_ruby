@@ -4,8 +4,8 @@ require './lib/program_result'
 require './lib/gem_info'
 require './lib/api_client'
 require './lib/commands/command'
-require './lib/options/option_factory'
 require './lib/options/parse_options'
+require 'pry'
 
 class SearchCommand < Command
   def initialize(client = APIClient)
@@ -17,19 +17,15 @@ class SearchCommand < Command
 
     keyword = args[0]
 
-    options = ParseOptions.execute(args[1..])
-
     api_response = @client.search(keyword)
 
     return ProgramResult.new(4, 'No gems found') if api_response.empty?
 
     gems = api_response
+    binding.pry
+    options = ParseOptions.execute(args[1..])
 
-    option_cmd = OptionFactory.find('licence') if options.licence
-    option_cmd = OptionFactory.find('sort') if options.sort
-    option_cmd = OptionFactory.find('sort-and-filter') if options.licence && options.sort
-
-    gems = option_cmd.execute(gems, options.licence.to_s) if option_cmd
+    options.each {|opt| opt.execute(gems)}
 
     gems = gems.map { |gem| GemInfo.new(gem['name'], gem['info']) }
 
