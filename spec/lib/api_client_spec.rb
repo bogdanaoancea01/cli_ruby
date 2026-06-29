@@ -17,7 +17,7 @@ RSpec.describe APIClient do
           .with("#{APIClient::BASE_URL}/gems/#{gem}.json")
           .and_return(fake_response)
 
-        result = APIClient.show(gem)
+        result = described_class.show(gem)
 
         expect(result['name']).to eq('rails')
         expect(result['info']).to eq('Ruby on Rails is a full-stack web framework optimized for programmer happiness and sustainable productivity. It encourages beautiful code by favoring convention over configuration.')
@@ -29,7 +29,7 @@ RSpec.describe APIClient do
         allow(APIClient::CONNECTION).to receive(:get)
           .with("#{APIClient::BASE_URL}/gems/#{non_existent_gem}.json")
           .and_raise(Faraday::ResourceNotFound)
-        result = APIClient.show(non_existent_gem)
+        result = described_class.show(non_existent_gem)
 
         expect(result).to eq('Gem not found')
       end
@@ -40,7 +40,7 @@ RSpec.describe APIClient do
         allow(APIClient::CONNECTION).to receive(:get)
           .with("#{APIClient::BASE_URL}/gems/#{non_existent_gem}.json")
           .and_raise(Faraday::ServerError)
-        result = APIClient.show(non_existent_gem)
+        result = described_class.show(non_existent_gem)
 
         expect(result).to eq('See status codes for more details')
       end
@@ -68,7 +68,7 @@ RSpec.describe APIClient do
           .with("#{APIClient::BASE_URL}/search.json?query=#{bad_keyword}")
           .and_raise(Faraday::ResourceNotFound)
 
-        result = APIClient.search(bad_keyword)
+        result = described_class.search(bad_keyword)
 
         expect(result).to eq('No gems found')
       end
@@ -80,7 +80,7 @@ RSpec.describe APIClient do
           .with("#{APIClient::BASE_URL}/search.json?query=#{good_keyword}")
           .and_return(search_api_response)
 
-        result = APIClient.search(good_keyword)
+        result = described_class.search(good_keyword)
 
         expect(result).to eq(
           [
@@ -98,9 +98,18 @@ RSpec.describe APIClient do
           .with("#{APIClient::BASE_URL}/search.json?query=#{good_keyword}")
           .and_raise(Faraday::TimeoutError)
 
-        result = APIClient.search(good_keyword)
+        result = described_class.search(good_keyword)
 
         expect(result).to eq('See status codes for more details')
+      end
+    end
+  end
+
+  describe '#connection' do
+    context 'test connection headers' do
+      it 'sets headers to given api key' do
+        expect(APIClient::CONNECTION.headers['authorization'])
+          .to eq(ENV['RUBY_GEMS_API_KEY'])
       end
     end
   end

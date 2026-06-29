@@ -5,6 +5,7 @@ class APIClient
   BASE_URL = 'https://rubygems.org/api/v1'
   CONNECTION = Faraday.new do |config|
     config.response :raise_error
+    config.headers['authorization'] = ENV['RUBY_GEMS_API_KEY']
   end
 
   def self.show(gem_name)

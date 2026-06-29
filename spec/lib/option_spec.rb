@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require './lib/commands/command'
+require './lib/options/option'
 
-RSpec.describe Command do
+RSpec.describe Option do
   describe '#execute' do
     it 'raises NotImplementedError' do
       expect do

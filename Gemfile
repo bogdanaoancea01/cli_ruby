@@ -3,6 +3,7 @@
 source 'https://rubygems.org'
 
 gem 'faraday'
+gem 'pry-byebug'
 gem 'rspec'
 
 group :development do
