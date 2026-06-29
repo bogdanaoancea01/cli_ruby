@@ -5,7 +5,7 @@ require './lib/gem_info'
 require './lib/api_client'
 require './lib/commands/command'
 require './lib/options/parse_options'
-require 'pry'
+require './lib/cache/cache'
 
 class SearchCommand < Command
   def initialize(client = APIClient)
@@ -17,11 +17,16 @@ class SearchCommand < Command
 
     keyword = args[0]
 
-    api_response = @client.search(keyword)
+    cache = Cache.new
 
-    return ProgramResult.new(4, 'No gems found') if api_response.empty?
+    gems = cache.get(keyword)
 
-    gems = api_response
+    if gems.nil?
+      gems = @client.search(keyword)
+      cache.save(keyword, gems)
+    end
+
+    return ProgramResult.new(4, 'No gems found') if gems.empty?
 
     options = ParseOptions.execute(args[1..])
 

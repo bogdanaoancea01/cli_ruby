@@ -1,8 +1,17 @@
 # frozen_string_literal: true
 
 require './lib/commands/search_command'
+require './lib/cache/cache'
 
 RSpec.describe SearchCommand do
+  before do
+    FileUtils.rm_rf('cache')
+  end
+
+  after do
+    FileUtils.rm_rf('cache')
+  end
+
   describe '#execute' do
     let(:client) { double('APIClient') }
     let(:command) { described_class.new(client) }
@@ -135,6 +144,63 @@ RSpec.describe SearchCommand do
 
         expect(result.exit_code).to eq(0)
         expect(result.exit_description).to eq(gems_after_sort_and_licence)
+      end
+    end
+
+    context 'when cache exists' do
+      let(:cache) { Cache.new }
+
+      before do
+        FileUtils.rm_rf('cache')
+
+        cache.save('cucumber', api_response)
+      end
+
+      after do
+        FileUtils.rm_rf('cache')
+      end
+
+      it 'does not call the api' do
+        expect(client).not_to receive(:search)
+
+        result = command.execute(['cucumber'])
+
+        expect(result.exit_code).to eq(0)
+      end
+
+      it 'uses the cache on the second search' do
+        FileUtils.rm_rf('cache')
+
+        allow(client)
+          .to receive(:search)
+          .once
+          .and_return(api_response)
+
+        command.execute(['cucumber'])
+        command.execute(['cucumber'])
+
+        expect(client).to have_received(:search).once
+      end
+    end
+
+    context 'when cache does not exist' do
+      before do
+        FileUtils.rm_rf('cache')
+      end
+
+      after do
+        FileUtils.rm_rf('cache')
+      end
+
+      it 'creates a cache file after searching' do
+        allow(client)
+          .to receive(:search)
+          .with('cucumber')
+          .and_return(api_response)
+
+        command.execute(['cucumber'])
+
+        expect(File.exist?('cache/cucumber.json')).to be true
       end
     end
   end

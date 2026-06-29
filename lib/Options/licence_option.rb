@@ -11,7 +11,7 @@ class LicenceOption < Option
 
   def execute(gems)
     gems.select! do |gem|
-      gem['licenses']&.include?(licence_name)
+      gem['licenses']&.include?(@licence_name)
     end
   end
 end
